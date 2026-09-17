@@ -9,7 +9,7 @@
 </head>
 <body class="bg-slate-100 p-6">
 
-  <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
+  <div class="max-w-3xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
     <div class="flex justify-between items-center mb-6 border-b pb-4">
       <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
         <i class="fa-solid fa-book-medical text-indigo-600"></i> Yeni Okuma Kaydı Ekle
@@ -19,187 +19,328 @@
       </a>
     </div>
 
-    <form id="addBookForm" class="space-y-4">
+    <form id="addBookForm" class="space-y-6">
       
-      <!-- Okuyucu Seçimi & Yeni Okuyucu Ekleme -->
-      <div class="grid grid-cols-2 gap-4">
+      <!-- 1. BÖLÜM: OKUYUCU BİLGİSİ -->
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <h2 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider"><i class="fa-solid fa-user-check"></i> 1. Okuyucu Seçimi</h2>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Okuyucu Seç</label>
           <select id="readerSelect" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none mb-2">
             <option value="">Okuyucular yükleniyor...</option>
           </select>
-          
-          <!-- Yeni Okuyucu Seçildiğinde Açılacak Input -->
           <input type="text" id="newReaderInput" placeholder="Yeni okuyucu adını yazın..." class="hidden w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none border-indigo-400 bg-indigo-50">
         </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Kitap Adı</label>
-          <input type="text" id="bookTitle" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Yazar</label>
-          <input type="text" id="author" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Tür / Kategori</label>
-          <select id="category" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-            <option value="Macera">Macera</option>
-            <option value="Bilim Kurgu">Bilim Kurgu</option>
-            <option value="Masal/Hikaye">Masal/Hikaye</option>
-            <option value="Tarih">Tarih</option>
-            <option value="Eğitim/Ders">Eğitim/Ders</option>
-            <option value="Diğer">Diğer</option>
+      <!-- 2. BÖLÜM: KİTAP BİLGİSİ -->
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <h2 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider"><i class="fa-solid fa-book"></i> 2. Kitap Bilgileri</h2>
+        
+        <div class="mb-4">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Kitap Seç</label>
+          <select id="bookSelect" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none mb-2">
+            <option value="">Kitaplar yükleniyor...</option>
           </select>
+          <!-- Yeni Kitap Seçildiğinde Açılacak Ad Alanı -->
+          <input type="text" id="newBookInput" placeholder="Yeni kitap adını yazın..." class="hidden w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none border-indigo-400 bg-indigo-50 mb-4">
+        </div>
+
+        <!-- Kitap Detayları Alanı -->
+        <div id="bookDetailsArea" class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Yazar</label>
+            <input type="text" id="author" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Tür / Kategori</label>
+            <select id="category" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+              <option value="Macera">Macera</option>
+              <option value="Bilim Kurgu">Bilim Kurgu</option>
+              <option value="Masal/Hikaye">Masal/Hikaye</option>
+              <option value="Tarih">Tarih</option>
+              <option value="Eğitim/Ders">Eğitim/Ders</option>
+              <option value="Diğer">Diğer</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Sayfa Sayısı</label>
+            <input type="number" id="pageCount" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Kapak Görsel URL (Opsiyonel)</label>
+            <input type="url" id="coverUrl" placeholder="https://..." class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Sayfa Sayısı</label>
-          <input type="number" id="pageCount" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+      <!-- 3. BÖLÜM: OKUMA PERFORMANSI -->
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+        <h2 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider"><i class="fa-solid fa-chart-pie"></i> 3. Okuma Performansı</h2>
+        
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Bitirme Tarihi</label>
+            <!-- Tarih otomatik olarak bugünün tarihi seçili gelir -->
+            <input type="date" id="dateFinished" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Hız (Kelime/Dk)</label>
+            <input type="number" id="readingSpeed" placeholder="Örn: 90" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Anlama Oranı (%)</label>
+            <input type="number" id="comprehensionScore" min="0" max="100" placeholder="0-100" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+          </div>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Okuma Hızı (Kelime/Dk)</label>
-          <input type="number" id="readingSpeed" placeholder="Örn: 90" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Anlama Oranı (%)</label>
-          <input type="number" id="comprehensionScore" min="0" max="100" placeholder="0-100" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Derecelendirme</label>
+            <select id="rating" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+              <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+              <option value="4">⭐⭐⭐⭐ (4/5)</option>
+              <option value="3">⭐⭐⭐ (3/5)</option>
+              <option value="2">⭐⭐ (2/5)</option>
+              <option value="1">⭐ (1/5)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Kısa Not / İnceleme</label>
+            <textarea id="shortNote" rows="2" placeholder="Kitap hakkında değerlendirme..." class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+          </div>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Bitirme Tarihi</label>
-          <input type="date" id="dateFinished" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Derecelendirme (1-5 Yıldız)</label>
-          <select id="rating" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-            <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
-            <option value="4">⭐⭐⭐⭐ (4/5)</option>
-            <option value="3">⭐⭐⭐ (3/5)</option>
-            <option value="2">⭐⭐ (2/5)</option>
-            <option value="1">⭐ (1/5)</option>
-          </select>
-        </div>
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Kitap Kapağı Görsel URL (Opsiyonel)</label>
-        <input type="url" id="coverUrl" placeholder="https://..." class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Kısa Not / İnceleme</label>
-        <textarea id="shortNote" rows="3" placeholder="Kitap hakkında değerlendirme..." class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
-      </div>
-
-      <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition">
-        Kaydı Tamamla ve Ekle
+      <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition text-lg shadow-md">
+        <i class="fa-solid fa-floppy-disk"></i> Kaydı Tamamla ve Ekle
       </button>
     </form>
   </div>
 
   <script type="module">
     import { auth, db } from './firebase-config.js';
-    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { collection, addDoc, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+    import { collection, addDoc, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
+    // Tüm okuyucuları ve kitapları tutacağımız listeler
+    let readersList = [];
+    let booksList = []; // Kitap objelerini tutacak dizi
+
+    // HTML Elementleri
     const readerSelect = document.getElementById('readerSelect');
     const newReaderInput = document.getElementById('newReaderInput');
+    
+    const bookSelect = document.getElementById('bookSelect');
+    const newBookInput = document.getElementById('newBookInput');
+    
+    // Kitap Detay Elementleri
+    const authorInput = document.getElementById('author');
+    const categorySelect = document.getElementById('category');
+    const pageCountInput = document.getElementById('pageCount');
+    const coverUrlInput = document.getElementById('coverUrl');
+    
+    const form = document.getElementById('addBookForm');
+    
+    // Bugunun tarihini varsayilan yap
+    document.getElementById('dateFinished').valueAsDate = new Date();
 
-    onAuthStateChanged(auth, user => {
-      if (!user) window.location.href = 'index.html';
-      else fetchReaders();
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // Oturum açık, verileri yükle
+        await loadReaders();
+        await loadBooks();
+      } else {
+        window.location.href = 'index.html';
+      }
     });
 
-    // Veritabanından Okuyucuları Çekip Dropdown'a Doldurma
-    async function fetchReaders() {
+    // 1. Okuyucuları Yükle
+    async function loadReaders() {
       try {
-        const q = query(collection(db, "readers"), orderBy("name", "asc"));
-        const snapshot = await getDocs(q);
-        
-        readerSelect.innerHTML = '<option value="">-- Okuyucu Seçin --</option>';
-        
-        snapshot.forEach(doc => {
-          const reader = doc.data();
-          readerSelect.innerHTML += `<option value="${reader.name}">${reader.name}</option>`;
+        const querySnapshot = await getDocs(collection(db, "readers"));
+        readersList = [];
+        querySnapshot.forEach((doc) => {
+          readersList.push({ id: doc.id, name: doc.data().name });
         });
-
-        // "Yeni Okuyucu Ekle" opsiyonunu en alta ekle
-        readerSelect.innerHTML += '<option value="__NEW__">+ Yeni Okuyucu Ekle...</option>';
-      } catch (err) {
-        console.error("Okuyucular yüklenirken hata:", err);
-        readerSelect.innerHTML = '<option value="__NEW__">+ Yeni Okuyucu Ekle...</option>';
+        renderReaderSelect();
+      } catch (error) {
+        console.error("Okuyucular yüklenemedi:", error);
+        readerSelect.innerHTML = '<option value="">Hata oluştu</option>';
       }
     }
 
-    // Dropdown Değiştiğinde Yeni Okuyucu Alanını Göster/Gizle
-    readerSelect.addEventListener('change', () => {
-      if (readerSelect.value === '__NEW__') {
+    function renderReaderSelect() {
+      readerSelect.innerHTML = '<option value="" disabled selected>Okuyucu seçiniz...</option>';
+      readersList.forEach(reader => {
+        readerSelect.innerHTML += `<option value="${reader.name}">${reader.name}</option>`;
+      });
+      readerSelect.innerHTML += `<option value="NEW" class="font-bold text-indigo-600 border-t">+ YENİ OKUYUCU EKLE</option>`;
+    }
+
+    // Okuyucu seçimi değiştiğinde
+    readerSelect.addEventListener('change', (e) => {
+      if (e.target.value === "NEW") {
         newReaderInput.classList.remove('hidden');
-        newReaderInput.setAttribute('required', 'true');
         newReaderInput.focus();
+        newReaderInput.setAttribute('required', 'true');
       } else {
         newReaderInput.classList.add('hidden');
         newReaderInput.removeAttribute('required');
       }
     });
 
+    // 2. Kitapları Yükle (YENİ EKLENEN KISIM)
+    async function loadBooks() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "books"));
+        booksList = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          booksList.push({
+            id: doc.id,
+            title: data.title,
+            author: data.author || "",
+            category: data.category || "Diğer",
+            pageCount: data.pageCount || "",
+            coverUrl: data.coverUrl || ""
+          });
+        });
+        renderBookSelect();
+      } catch (error) {
+        console.error("Kitaplar yüklenemedi:", error);
+        bookSelect.innerHTML = '<option value="">Hata oluştu</option>';
+      }
+    }
+
+    function renderBookSelect() {
+      bookSelect.innerHTML = '<option value="" disabled selected>Kayıtlı kitaplardan seçiniz...</option>';
+      booksList.forEach(book => {
+        bookSelect.innerHTML += `<option value="${book.id}">${book.title}</option>`;
+      });
+      bookSelect.innerHTML += `<option value="NEW" class="font-bold text-indigo-600 border-t">+ YENİ KİTAP EKLE</option>`;
+    }
+
+    // Kitap seçimi değiştiğinde detayları doldur (YENİ EKLENEN KISIM)
+    bookSelect.addEventListener('change', (e) => {
+      const selectedValue = e.target.value;
+      
+      if (selectedValue === "NEW") {
+        // Yeni kitap eklenecek, giriş alanını aç ve detayları temizle
+        newBookInput.classList.remove('hidden');
+        newBookInput.focus();
+        newBookInput.setAttribute('required', 'true');
+        
+        // Detayları kullanıcının girebilmesi için temizle
+        authorInput.value = "";
+        pageCountInput.value = "";
+        coverUrlInput.value = "";
+        categorySelect.value = "Macera";
+        
+      } else {
+        // Var olan kitap seçildi, giriş alanını gizle ve detayları otomatik doldur
+        newBookInput.classList.add('hidden');
+        newBookInput.removeAttribute('required');
+        
+        const selectedBook = booksList.find(b => b.id === selectedValue);
+        if(selectedBook) {
+          authorInput.value = selectedBook.author;
+          pageCountInput.value = selectedBook.pageCount;
+          coverUrlInput.value = selectedBook.coverUrl;
+          
+          // Select kutusunda ilgili opsiyonu seç
+          const categoryOptions = Array.from(categorySelect.options);
+          const optionToSelect = categoryOptions.find(opt => opt.value === selectedBook.category);
+          if(optionToSelect) {
+            optionToSelect.selected = true;
+          } else {
+             categorySelect.value = "Diğer";
+          }
+        }
+      }
+    });
+
+
     // Form Gönderildiğinde
-    document.getElementById('addBookForm').addEventListener('submit', async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      let finalReaderName = "";
+      const submitBtn = form.querySelector('button[type="submit"]');
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Kaydediliyor...';
 
-      // Yeni okuyucu mu seçildi yoksa var olan mı?
-      if (readerSelect.value === '__NEW__') {
-        finalReaderName = newReaderInput.value.trim();
-
-        // Yeni okuyucuyu "readers" koleksiyonuna kaydet
-        if (finalReaderName) {
-          await addDoc(collection(db, "readers"), {
+      try {
+        // --- 1. Okuyucu İşlemi ---
+        let finalReaderName = "";
+        if (readerSelect.value === "NEW") {
+          finalReaderName = newReaderInput.value.trim();
+          // Yeni okuyucuyu 'readers' koleksiyonuna ekle (isim bazlı doküman ID)
+          await setDoc(doc(db, "readers", finalReaderName), {
             name: finalReaderName,
             createdAt: new Date()
           });
+        } else {
+          finalReaderName = readerSelect.value;
         }
-      } else {
-        finalReaderName = readerSelect.value;
-      }
 
-      if (!finalReaderName) {
-        alert("Lütfen geçerli bir okuyucu seçin veya girin.");
-        return;
-      }
+        // --- 2. Kitap İşlemi (YENİ EKLENEN KISIM) ---
+        let finalBookTitle = "";
+        // Kitap detaylarını al (seçilmiş olsa da, değiştirilmiş olabilir diye inputlardan alıyoruz)
+        const bookDetails = {
+           author: authorInput.value.trim(),
+           category: categorySelect.value,
+           pageCount: Number(pageCountInput.value),
+           coverUrl: coverUrlInput.value.trim()
+        };
 
-      const newBook = {
-        readerName: finalReaderName,
-        bookTitle: document.getElementById('bookTitle').value,
-        author: document.getElementById('author').value,
-        category: document.getElementById('category').value,
-        pageCount: Number(document.getElementById('pageCount').value),
-        readingSpeed: Number(document.getElementById('readingSpeed').value || 0),
-        comprehensionScore: Number(document.getElementById('comprehensionScore').value || 0),
-        dateFinished: document.getElementById('dateFinished').value,
-        rating: Number(document.getElementById('rating').value),
-        coverUrl: document.getElementById('coverUrl').value || 'https://via.placeholder.com/150x220?text=Kitap+Kapagi',
-        shortNote: document.getElementById('shortNote').value,
-        createdAt: new Date()
-      };
+        if (bookSelect.value === "NEW") {
+          finalBookTitle = newBookInput.value.trim();
+          
+          // Yeni kitabı 'books' koleksiyonuna ekle
+          // ID'yi otomatik oluştursun, title'ı ayrıca tutalım
+          await addDoc(collection(db, "books"), {
+            title: finalBookTitle,
+            ...bookDetails,
+            createdAt: new Date()
+          });
+          
+        } else {
+          // Var olan kitap seçildi. ID'den adını bulalım.
+          const selectedBook = booksList.find(b => b.id === bookSelect.value);
+          finalBookTitle = selectedBook.title;
+          
+          // İSTEĞE BAĞLI: Eğer kullanıcı var olan bir kitabın sayfa sayısını vs değiştirdiyse,
+          // burada 'books' koleksiyonundaki dokümanı güncelleyebiliriz (updateDoc).
+          // Şimdilik sadece okuma kaydına ekliyoruz.
+        }
 
-      try {
-        await addDoc(collection(db, "reading_logs"), newBook);
-        alert('Okuma kaydı başarıyla eklendi!');
-        window.location.href = 'dashboard.html';
-      } catch (err) {
-        alert('Hata oluştu: ' + err.message);
+        // --- 3. Okuma Kaydını 'reading_logs' Koleksiyonuna Ekle ---
+        const logData = {
+          readerName: finalReaderName,
+          bookTitle: finalBookTitle, // Okuma logunda direkt kitabın adını tutuyoruz gösterim kolaylığı için
+          ...bookDetails, // yazar, kategori vs log içinde de dursun
+          
+          dateFinished: document.getElementById('dateFinished').value,
+          readingSpeed: Number(document.getElementById('readingSpeed').value) || null,
+          comprehensionScore: Number(document.getElementById('comprehensionScore').value) || null,
+          rating: Number(document.getElementById('rating').value),
+          shortNote: document.getElementById('shortNote').value.trim(),
+          
+          timestamp: new Date()
+        };
+
+        await addDoc(collection(db, "reading_logs"), logData);
+
+        alert("Kayıt başarıyla eklendi!");
+        window.location.href = 'dashboard.html'; // İşlem bitince panele dön
+
+      } catch (error) {
+        console.error("Kayıt eklenirken hata:", error);
+        alert("Hata oluştu: " + error.message);
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Kaydı Tamamla ve Ekle';
       }
     });
+
   </script>
 </body>
 </html>
