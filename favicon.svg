@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Arka Plan Kutusu (Indigo) -->
+  <rect width="100" height="100" rx="22" fill="#4F46E5"/>
+  
+  <!-- Kitap Sol Sayfa -->
+  <path d="M25 32C25 28.6863 27.6863 26 31 26H46V74H31C27.6863 74 25 71.3137 25 68V32Z" fill="#FFFFFF" opacity="0.9"/>
+  
+  <!-- Kitap Sağ Sayfa -->
+  <path d="M75 32C75 28.6863 72.3137 26 69 26H54V74H69C72.3137 74 75 71.3137 75 68V32Z" fill="#FFFFFF"/>
+  
+  <!-- Kitap Omurgası -->
+  <path d="M50 26V74" stroke="#312E81" stroke-width="3" stroke-linecap="round"/>
+  
+  <!-- Metin ve Çizgi Detayları -->
+  <path d="M32 38H40M32 46H40M32 54H38" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Tamamlandı/Başarı İkonu (Yeşil Nokta) -->
+  <circle cx="68" cy="36" r="3.5" fill="#10B981"/>
+  <path d="M63 46H69M59 54H69" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round"/>
+</svg>
