@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kitap Ekle - Okuma Takip</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 p-6">
+
+  <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-lg">
+    <div class="flex justify-between items-center mb-6 border-b pb-4">
+      <h1 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+        <i class="fa-solid fa-book-medical text-indigo-600"></i> Yeni Okuma Kaydı Ekle
+      </h1>
+      <a href="dashboard.html" class="text-sm text-slate-500 hover:text-slate-800">
+        <i class="fa-solid fa-arrow-left"></i> Panel Dön
+      </a>
+    </div>
+
+    <form id="addBookForm" class="space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Okuyucu Adı</label>
+          <input type="text" id="readerName" placeholder="Örn: Oğlum, Ahmet, Elif" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Kitap Adı</label>
+          <input type="text" id="bookTitle" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Yazar</label>
+          <input type="text" id="author" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Tür / Kategori</label>
+          <select id="category" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+            <option value="Macera">Macera</option>
+            <option value="Bilim Kurgu">Bilim Kurgu</option>
+            <option value="Masal/Hikaye">Masal/Hikaye</option>
+            <option value="Tarih">Tarih</option>
+            <option value="Eğitim/Ders">Eğitim/Ders</option>
+            <option value="Diğer">Diğer</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Sayfa Sayısı</label>
+          <input type="number" id="pageCount" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Okuma Hızı (Kelime/Dk)</label>
+          <input type="number" id="readingSpeed" placeholder="Örn: 90" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Anlama Oranı (%)</label>
+          <input type="number" id="comprehensionScore" min="0" max="100" placeholder="0-100" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Bitirme Tarihi</label>
+          <input type="date" id="dateFinished" required class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Derecelendirme (1-5 Yıldız)</label>
+          <select id="rating" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+            <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+            <option value="4">⭐⭐⭐⭐ (4/5)</option>
+            <option value="3">⭐⭐⭐ (3/5)</option>
+            <option value="2">⭐⭐ (2/5)</option>
+            <option value="1">⭐ (1/5)</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Kitap Kapağı Görsel URL (Opsiyonel)</label>
+        <input type="url" id="coverUrl" placeholder="https://..." class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Kısa Not / İnceleme</label>
+        <textarea id="shortNote" rows="3" placeholder="Kitap hakkında değerlendirme..." class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"></textarea>
+      </div>
+
+      <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition">
+        Kaydı Tamamla ve Ekle
+      </button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    onAuthStateChanged(auth, user => {
+      if (!user) window.location.href = 'index.html';
+    });
+
+    document.getElementById('addBookForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const newBook = {
+        readerName: document.getElementById('readerName').value,
+        bookTitle: document.getElementById('bookTitle').value,
+        author: document.getElementById('author').value,
+        category: document.getElementById('category').value,
+        pageCount: Number(document.getElementById('pageCount').value),
+        readingSpeed: Number(document.getElementById('readingSpeed').value || 0),
+        comprehensionScore: Number(document.getElementById('comprehensionScore').value || 0),
+        dateFinished: document.getElementById('dateFinished').value,
+        rating: Number(document.getElementById('rating').value),
+        coverUrl: document.getElementById('coverUrl').value || 'https://via.placeholder.com/150x220?text=Kitap+Kapagi',
+        shortNote: document.getElementById('shortNote').value,
+        createdAt: new Date()
+      };
+
+      try {
+        await addDoc(collection(db, "reading_logs"), newBook);
+        alert('Okuma kaydı başarıyla eklendi!');
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        alert('Hata oluştu: ' + err.message);
+      }
+    });
+  </script>
+</body>
+</html>
