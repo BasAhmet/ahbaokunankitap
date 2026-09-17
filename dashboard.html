@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yönetim Paneli - Okuma Takip</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+  <!-- Navbar -->
+  <nav class="bg-indigo-600 text-white px-6 py-4 flex justify-between items-center shadow-md">
+    <div class="flex items-center space-x-3">
+      <i class="fa-solid fa-chart-line text-2xl"></i>
+      <span class="text-xl font-bold">Okuma Takip - Yönetici Paneli</span>
+    </div>
+    <div class="space-x-4">
+      <a href="add-book.html" class="bg-emerald-500 hover:bg-emerald-600 px-4 py-2 rounded-lg font-semibold transition inline-flex items-center gap-2">
+        <i class="fa-solid fa-plus"></i> Kitap Kaydı Ekle
+      </a>
+      <button id="logoutBtn" class="bg-red-500 hover:bg-red-600 px-3 py-2 rounded-lg font-semibold transition">
+        <i class="fa-solid fa-right-from-bracket"></i> Çıkış
+      </button>
+    </div>
+  </nav>
+
+  <main class="max-w-7xl mx-auto p-6 space-y-6">
+
+    <!-- Genel İstatistik Kartları -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-500 font-bold uppercase">Toplam Kitap</p>
+          <p id="statTotalBooks" class="text-3xl font-black text-indigo-600 mt-1">0</p>
+        </div>
+        <div class="text-indigo-500 bg-indigo-50 p-3 rounded-lg"><i class="fa-solid fa-book text-2xl"></i></div>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-500 font-bold uppercase">Toplam Sayfa</p>
+          <p id="statTotalPages" class="text-3xl font-black text-emerald-600 mt-1">0</p>
+        </div>
+        <div class="text-emerald-500 bg-emerald-50 p-3 rounded-lg"><i class="fa-solid fa-file-lines text-2xl"></i></div>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-500 font-bold uppercase">Ort. Okuma Hızı</p>
+          <p id="statAvgSpeed" class="text-3xl font-black text-amber-600 mt-1">0 <span class="text-sm font-normal">K/Dk</span></p>
+        </div>
+        <div class="text-amber-500 bg-amber-50 p-3 rounded-lg"><i class="fa-solid fa-gauge-high text-2xl"></i></div>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
+        <div>
+          <p class="text-xs text-slate-500 font-bold uppercase">Ort. Anlama Oranı</p>
+          <p id="statAvgComprehension" class="text-3xl font-black text-purple-600 mt-1">%0</p>
+        </div>
+        <div class="text-purple-500 bg-purple-50 p-3 rounded-lg"><i class="fa-solid fa-brain text-2xl"></i></div>
+      </div>
+    </div>
+
+    <!-- Okuyucular & Son Kitaplar Listesi -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-list-check text-indigo-600"></i> Okuyucu Kayıtları & Kitaplar
+      </h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-semibold">
+              <th class="p-3">Kapak</th>
+              <th class="p-3">Okuyucu</th>
+              <th class="p-3">Kitap & Yazar</th>
+              <th class="p-3">Tür</th>
+              <th class="p-3">Sayfa</th>
+              <th class="p-3">Hız (K/Dk)</th>
+              <th class="p-3">Anlama</th>
+              <th class="p-3">Puan</th>
+              <th class="p-3">Tarih</th>
+              <th class="p-3">Detay</th>
+            </tr>
+          </thead>
+          <tbody id="booksTableBody" class="divide-y divide-slate-100 text-sm">
+            <!-- Dinamik doldurulacak -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    onAuthStateChanged(auth, user => {
+      if (!user) window.location.href = 'index.html';
+      else loadDashboardData();
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => signOut(auth));
+
+    async function loadDashboardData() {
+      const querySnapshot = await getDocs(query(collection(db, "reading_logs"), orderBy("dateFinished", "desc")));
+      
+      let totalBooks = 0, totalPages = 0, totalSpeed = 0, totalComp = 0;
+      const tableBody = document.getElementById('booksTableBody');
+      tableBody.innerHTML = '';
+
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        totalBooks++;
+        totalPages += Number(data.pageCount || 0);
+        totalSpeed += Number(data.readingSpeed || 0);
+        totalComp += Number(data.comprehensionScore || 0);
+
+        const stars = '★'.repeat(data.rating || 0) + '☆'.repeat(5 - (data.rating || 0));
+
+        tableBody.innerHTML += `
+          <tr class="hover:bg-slate-50 transition">
+            <td class="p-3">
+              <img src="${data.coverUrl || 'https://via.placeholder.com/40x60?text=Kitap'}" class="w-10 h-14 object-cover rounded shadow-sm">
+            </td>
+            <td class="p-3 font-semibold text-slate-700">${data.readerName}</td>
+            <td class="p-3">
+              <div class="font-bold text-slate-800">${data.bookTitle}</div>
+              <div class="text-xs text-slate-500">${data.author || '-'}</div>
+            </td>
+            <td class="p-3"><span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-1 rounded">${data.category || 'Genel'}</span></td>
+            <td class="p-3 font-semibold">${data.pageCount}</td>
+            <td class="p-3 text-amber-600 font-bold">${data.readingSpeed || '-'}</td>
+            <td class="p-3 text-purple-600 font-bold">%${data.comprehensionScore || '-'}</td>
+            <td class="p-3 text-amber-400 font-bold">${stars}</td>
+            <td class="p-3 text-xs text-slate-500">${data.dateFinished}</td>
+            <td class="p-3">
+              <a href="reader-detail.html?reader=${encodeURIComponent(data.readerName)}" class="text-indigo-600 hover:text-indigo-800 font-semibold text-xs underline">Rozetler & Profil</a>
+            </td>
+          </tr>
+        `;
+      });
+
+      document.getElementById('statTotalBooks').innerText = totalBooks;
+      document.getElementById('statTotalPages').innerText = totalPages;
+      document.getElementById('statAvgSpeed').innerText = totalBooks ? Math.round(totalSpeed / totalBooks) : 0;
+      document.getElementById('statAvgComprehension').innerText = '%' + (totalBooks ? Math.round(totalComp / totalBooks) : 0);
+    }
+  </script>
+</body>
+</html>
