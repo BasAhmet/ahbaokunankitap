@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Okuma Raporu & Çıktı - Okuma Takip</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Yazdırma (Print / PDF) Özel CSS Stilleri -->
+  <style>
+    @media print {
+      /* Yazdırılırken gizlenecek alanlar */
+      .no-print {
+        display: none !important;
+      }
+      /* Yazdırma kağıt düzeni */
+      body {
+        background-color: white !important;
+        color: black !important;
+        padding: 0 !important;
+      }
+      .print-container {
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        max-width: 100% !important;
+      }
+      table {
+        font-size: 11pt !important;
+      }
+      th, td {
+        border-bottom: 1px solid #ddd !important;
+        padding: 6px 8px !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 md:p-6">
+
+  <div class="max-w-6xl mx-auto space-y-6 print-container">
+
+    <!-- Navbar & Üst Başlık (Yazdırılırken Gizlenir) -->
+    <div class="no-print flex flex-col sm:flex-row justify-between items-center bg-white p-5 rounded-2xl shadow-sm border border-slate-200 gap-4">
+      <div class="flex items-center gap-3">
+        <div class="bg-indigo-100 text-indigo-600 p-3 rounded-xl">
+          <i class="fa-solid fa-file-invoice text-2xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold text-slate-800">Okuma Raporları ve Çıktı Paneli</h1>
+          <p class="text-xs text-slate-500">Tarih aralığına göre filtreleyin ve resmi çıktı alın</p>
+        </div>
+      </div>
+      <div class="flex gap-3">
+        <a href="dashboard.html" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-semibold text-sm transition flex items-center gap-2">
+          <i class="fa-solid fa-arrow-left"></i> Panele Dön
+        </a>
+        <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2 rounded-lg font-bold text-sm transition shadow-md flex items-center gap-2">
+          <i class="fa-solid fa-print"></i> Yazdır / PDF Al
+        </button>
+      </div>
+    </div>
+
+    <!-- FİLTRELEME PANELİ (Yazdırılırken Gizlenir) -->
+    <div class="no-print bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+      <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+        <i class="fa-solid fa-filter text-indigo-600"></i> Rapor Filtreleri
+      </h2>
+
+      <!-- Hızlı Tarih Butonları -->
+      <div class="flex flex-wrap gap-2 pt-1">
+        <button type="button" onclick="setQuickRange(7)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-2 rounded-lg border border-indigo-200 transition">
+          <i class="fa-regular fa-calendar-check"></i> Son 1 Hafta
+        </button>
+        <button type="button" onclick="setQuickRange(14)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-2 rounded-lg border border-indigo-200 transition">
+          <i class="fa-regular fa-calendar-check"></i> Son 2 Hafta
+        </button>
+        <button type="button" onclick="setQuickRange(30)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold px-3 py-2 rounded-lg border border-indigo-200 transition">
+          <i class="fa-regular fa-calendar-check"></i> Son 1 Ay
+        </button>
+        <button type="button" onclick="setAllTime()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-300 transition">
+          <i class="fa-solid fa-infinity"></i> Tüm Zamanlar
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 pt-2">
+        <!-- Okuyucu Seçimi -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Okuyucu</label>
+          <select id="filterReader" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+            <option value="ALL">Tüm Okuyucular</option>
+          </select>
+        </div>
+
+        <!-- Başlangıç Tarihi -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Başlangıç Tarihi</label>
+          <input type="date" id="startDate" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+        </div>
+
+        <!-- Bitiş Tarihi -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Bitiş Tarihi</label>
+          <input type="date" id="endDate" class="w-full border p-2 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+        </div>
+
+        <!-- Süz Butonu -->
+        <div class="flex items-end">
+          <button id="applyFilterBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition text-sm flex items-center justify-center gap-2">
+            <i class="fa-solid fa-magnifying-glass"></i> Raporu Oluştur
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- RAPOR ÇIKTI ALANI (Yazdırıldığında Sadece Burası Görünür) -->
+    <div class="bg-white p-8 rounded-2xl shadow-sm border border-slate-200 space-y-6">
+      
+      <!-- Rapor Başlığı & Üst Bilgisi -->
+      <div class="border-b pb-4 flex justify-between items-start">
+        <div>
+          <h2 id="reportMainTitle" class="text-2xl font-black text-slate-800">OKUMA TAKİP VE GELİŞİM RAPORU</h2>
+          <p id="reportSubTitle" class="text-sm font-semibold text-indigo-600 mt-1">Tüm Okuyucular - Genel Özet</p>
+          <p id="reportDateRange" class="text-xs text-slate-500 mt-1">Tarih Aralığı: -</p>
+        </div>
+        <div class="text-right text-xs text-slate-400">
+          <p class="font-bold text-slate-600">Okuma Takip Portalı</p>
+          <p id="reportGeneratedDate">Rapor Tarihi: -</p>
+        </div>
+      </div>
+
+      <!-- İstatistik Özet Kartları -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+          <p class="text-xs text-slate-500 font-bold uppercase">Okunan Kitap</p>
+          <p id="statBooks" class="text-2xl font-black text-indigo-600 mt-1">0</p>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+          <p class="text-xs text-slate-500 font-bold uppercase">Toplam Sayfa</p>
+          <p id="statPages" class="text-2xl font-black text-emerald-600 mt-1">0</p>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+          <p class="text-xs text-slate-500 font-bold uppercase">Ort. Okuma Hızı</p>
+          <p id="statSpeed" class="text-2xl font-black text-amber-600 mt-1">0 <span class="text-xs font-normal">K/Dk</span></p>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 text-center">
+          <p class="text-xs text-slate-500 font-bold uppercase">Ort. Anlama Oranı</p>
+          <p id="statComp" class="text-2xl font-black text-purple-600 mt-1">%0</p>
+        </div>
+      </div>
+
+      <!-- Kitap Tablosu -->
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-100 text-slate-700 text-xs uppercase font-bold border-b border-slate-300">
+              <th class="p-3">#</th>
+              <th class="p-3">Bitirme Tarihi</th>
+              <th class="p-3">Okuyucu</th>
+              <th class="p-3">Kitap Adı</th>
+              <th class="p-3">Yazar</th>
+              <th class="p-3">Tür</th>
+              <th class="p-3 text-center">Sayfa</th>
+              <th class="p-3 text-center">Hız (K/Dk)</th>
+              <th class="p-3 text-center">Anlama</th>
+              <th class="p-3">Not / Değerlendirme</th>
+            </tr>
+          </thead>
+          <tbody id="reportTableBody" class="divide-y divide-slate-200 text-xs">
+            <!-- Dinamik doldurulacak -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Sayfa Altı İmza / Not Alanı (Yazdırıldığında Çok Şık Durur) -->
+      <div class="pt-8 border-t flex justify-between items-center text-xs text-slate-400 italic">
+        <p>* Bu rapor Okuma Takip Portalı tarafından otomatik oluşturulmuştur.</p>
+        <p class="no-print text-indigo-600 font-semibold cursor-pointer" onclick="window.print()">
+          <i class="fa-solid fa-print"></i> Sayfayı Yazdır veya PDF olarak kaydet
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { auth, db } from './firebase-config.js';
+    import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    let allLogs = [];
+    let readersList = [];
+
+    const filterReader = document.getElementById('filterReader');
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const applyFilterBtn = document.getElementById('applyFilterBtn');
+
+    // Sayfa açıldığında
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        document.getElementById('reportGeneratedDate').innerText = "Rapor Tarihi: " + new Date().toLocaleDateString('tr-TR');
+        await fetchReaders();
+        await fetchAllLogs();
+        setQuickRange(14); // Varsayılan olarak Son 2 Haftayı getir
+      } else {
+        window.location.href = 'index.html';
+      }
+    });
+
+    // 1. Okuyucu Listesini Çek
+    async function fetchReaders() {
+      try {
+        const snapshot = await getDocs(collection(db, "readers"));
+        snapshot.forEach(doc => {
+          readersList.push(doc.data().name);
+        });
+        
+        filterReader.innerHTML = '<option value="ALL">Tüm Okuyucular</option>';
+        readersList.sort().forEach(name => {
+          filterReader.innerHTML += `<option value="${name}">${name}</option>`;
+        });
+      } catch (err) {
+        console.error("Okuyucular yüklenemedi:", err);
+      }
+    }
+
+    // 2. Tüm Okuma Loglarını Çek
+    async function fetchAllLogs() {
+      try {
+        const q = query(collection(db, "reading_logs"), orderBy("dateFinished", "desc"));
+        const snapshot = await getDocs(q);
+        allLogs = [];
+        snapshot.forEach(doc => {
+          allLogs.push(doc.data());
+        });
+      } catch (err) {
+        console.error("Loglar çekilemedi:", err);
+      }
+    }
+
+    // 3. Hızlı Tarih Aralığı Butonları
+    window.setQuickRange = function(days) {
+      const end = new Date();
+      const start = new Date();
+      start.setDate(end.getDate() - days);
+
+      startDateInput.value = start.toISOString().split('T')[0];
+      endDateInput.value = end.toISOString().split('T')[0];
+      
+      generateReport();
+    };
+
+    window.setAllTime = function() {
+      startDateInput.value = "";
+      endDateInput.value = "";
+      generateReport();
+    };
+
+    applyFilterBtn.addEventListener('click', generateReport);
+
+    // 4. Raporu Oluşturma ve Filtreleme Mantığı
+    function generateReport() {
+      const selectedReader = filterReader.value;
+      const startDate = startDateInput.value;
+      const endDate = endDateInput.value;
+
+      // Başlıkları Güncelle
+      const readerText = selectedReader === "ALL" ? "Tüm Okuyucular" : selectedReader;
+      document.getElementById('reportSubTitle').innerText = `${readerText} - Okuma Karnesi`;
+
+      let dateText = "Tüm Zamanlar";
+      if (startDate && endDate) {
+        dateText = `${formatDateTR(startDate)} - ${formatDateTR(endDate)}`;
+      } else if (startDate) {
+        dateText = `${formatDateTR(startDate)} tarihinden itibaren`;
+      } else if (endDate) {
+        dateText = `${formatDateTR(endDate)} tarihine kadar`;
+      }
+      document.getElementById('reportDateRange').innerText = `Tarih Aralığı: ${dateText}`;
+
+      // Filtreleme
+      const filtered = allLogs.filter(log => {
+        // Okuyucu Filtresi
+        if (selectedReader !== "ALL" && log.readerName !== selectedReader) {
+          return false;
+        }
+        
+        // Tarih Filtresi (dateFinished "YYYY-MM-DD" formatındadır)
+        if (startDate && log.dateFinished < startDate) {
+          return false;
+        }
+        if (endDate && log.dateFinished > endDate) {
+          return false;
+        }
+
+        return true;
+      });
+
+      // Tabloyu ve İstatistikleri Doldur
+      renderReportData(filtered);
+    }
+
+    // 5. Verileri Ekrana Basma
+    function renderReportData(dataList) {
+      const tbody = document.getElementById('reportTableBody');
+      tbody.innerHTML = '';
+
+      let totalBooks = dataList.length;
+      let totalPages = 0;
+      let totalSpeed = 0;
+      let speedCount = 0;
+      let totalComp = 0;
+      let compCount = 0;
+
+      if (dataList.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="10" class="p-6 text-center text-slate-400 italic">
+              Belirtilen filtre kriterlerine uygun okuma kaydı bulunamadı.
+            </td>
+          </tr>
+        `;
+      } else {
+        dataList.forEach((log, index) => {
+          totalPages += Number(log.pageCount || 0);
+
+          if (log.readingSpeed) {
+            totalSpeed += Number(log.readingSpeed);
+            speedCount++;
+          }
+          if (log.comprehensionScore) {
+            totalComp += Number(log.comprehensionScore);
+            compCount++;
+          }
+
+          tbody.innerHTML += `
+            <tr class="hover:bg-slate-50 transition">
+              <td class="p-3 font-bold text-slate-400">${index + 1}</td>
+              <td class="p-3 font-semibold text-slate-700">${formatDateTR(log.dateFinished)}</td>
+              <td class="p-3 font-bold text-indigo-700">${log.readerName || '-'}</td>
+              <td class="p-3 font-bold text-slate-800">${log.bookTitle || '-'}</td>
+              <td class="p-3 text-slate-600">${log.author || '-'}</td>
+              <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-semibold">${log.category || 'Genel'}</span></td>
+              <td class="p-3 text-center font-bold text-slate-800">${log.pageCount || 0}</td>
+              <td class="p-3 text-center text-amber-600 font-bold">${log.readingSpeed ? log.readingSpeed + ' K/Dk' : '-'}</td>
+              <td class="p-3 text-center text-purple-600 font-bold">${log.comprehensionScore ? '%' + log.comprehensionScore : '-'}</td>
+              <td class="p-3 text-slate-500 italic max-w-xs truncate">${log.shortNote || '-'}</td>
+            </tr>
+          `;
+        });
+      }
+
+      // Kart İstatistiklerini Güncelle
+      document.getElementById('statBooks').innerText = totalBooks;
+      document.getElementById('statPages').innerText = totalPages;
+      document.getElementById('statSpeed').innerText = speedCount ? Math.round(totalSpeed / speedCount) : 0;
+      document.getElementById('statComp').innerText = '%' + (compCount ? Math.round(totalComp / compCount) : 0);
+    }
+
+    // Tarih Formatlayıcı (YYYY-MM-DD -> DD.MM.YYYY)
+    function formatDateTR(dateStr) {
+      if (!dateStr) return '-';
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        return `${parts[2]}.${parts[1]}.${parts[0]}`;
+      }
+      return dateStr;
+    }
+  </script>
+</body>
+</html>
