@@ -344,8 +344,8 @@
               <td class="p-3 text-slate-600">${log.author || '-'}</td>
               <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-[10px] font-semibold">${log.category || 'Genel'}</span></td>
               <td class="p-3 text-center font-bold text-slate-800">${log.pageCount || 0}</td>
-              <td class="p-3 text-center text-amber-600 font-bold">${log.readingSpeed ? log.readingSpeed + ' K/Dk' : '-'}</td>
-              <td class="p-3 text-center text-purple-600 font-bold">${log.comprehensionScore ? '%' + log.comprehensionScore : '-'}</td>
+              <td class="no-print p-3 text-center text-amber-600 font-bold">${log.readingSpeed ? log.readingSpeed + ' K/Dk' : '-'}</td>
+              <td class="no-print p-3 text-center text-purple-600 font-bold">${log.comprehensionScore ? '%' + log.comprehensionScore : '-'}</td>
               <td class="p-3 text-slate-500 italic max-w-xs truncate">${log.shortNote || '-'}</td>
             </tr>
           `;
