@@ -32,7 +32,7 @@
   <main class="max-w-7xl mx-auto p-6 space-y-6">
 
     <!-- Genel İstatistik Kartları -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
         <div>
           <p class="text-xs text-slate-500 font-bold uppercase">Toplam Kitap</p>
@@ -49,21 +49,6 @@
         <div class="text-emerald-500 bg-emerald-50 p-3 rounded-lg"><i class="fa-solid fa-file-lines text-2xl"></i></div>
       </div>
 
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
-        <div>
-          <p class="text-xs text-slate-500 font-bold uppercase">Ort. Okuma Hızı</p>
-          <p id="statAvgSpeed" class="text-3xl font-black text-amber-600 mt-1">0 <span class="text-sm font-normal">K/Dk</span></p>
-        </div>
-        <div class="text-amber-500 bg-amber-50 p-3 rounded-lg"><i class="fa-solid fa-gauge-high text-2xl"></i></div>
-      </div>
-
-      <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200 flex items-center justify-between">
-        <div>
-          <p class="text-xs text-slate-500 font-bold uppercase">Ort. Anlama Oranı</p>
-          <p id="statAvgComprehension" class="text-3xl font-black text-purple-600 mt-1">%0</p>
-        </div>
-        <div class="text-purple-500 bg-purple-50 p-3 rounded-lg"><i class="fa-solid fa-brain text-2xl"></i></div>
-      </div>
     </div>
 
     <!-- Okuyucular & Son Kitaplar Listesi -->
@@ -80,11 +65,10 @@
               <th class="p-3">Kitap & Yazar</th>
               <th class="p-3">Tür</th>
               <th class="p-3">Sayfa</th>
-              <th class="p-3">Hız (K/Dk)</th>
-              <th class="p-3">Anlama</th>
               <th class="p-3">Puan</th>
               <th class="p-3">Tarih</th>
               <th class="p-3">Detay</th>
+              <th class="p-3">İşlem</th>
             </tr>
           </thead>
           <tbody id="booksTableBody" class="divide-y divide-slate-100 text-sm">
@@ -111,7 +95,7 @@
     async function loadDashboardData() {
       const querySnapshot = await getDocs(query(collection(db, "reading_logs"), orderBy("dateFinished", "desc")));
       
-      let totalBooks = 0, totalPages = 0, totalSpeed = 0, totalComp = 0;
+      let totalBooks = 0, totalPages = 0;
       const tableBody = document.getElementById('booksTableBody');
       tableBody.innerHTML = '';
 
@@ -119,8 +103,6 @@
         const data = doc.data();
         totalBooks++;
         totalPages += Number(data.pageCount || 0);
-        totalSpeed += Number(data.readingSpeed || 0);
-        totalComp += Number(data.comprehensionScore || 0);
 
         const stars = '★'.repeat(data.rating || 0) + '☆'.repeat(5 - (data.rating || 0));
 
@@ -136,12 +118,15 @@
             </td>
             <td class="p-3"><span class="bg-indigo-50 text-indigo-700 text-xs font-semibold px-2 py-1 rounded">${data.category || 'Genel'}</span></td>
             <td class="p-3 font-semibold">${data.pageCount}</td>
-            <td class="p-3 text-amber-600 font-bold">${data.readingSpeed || '-'}</td>
-            <td class="p-3 text-purple-600 font-bold">%${data.comprehensionScore || '-'}</td>
             <td class="p-3 text-amber-400 font-bold">${stars}</td>
             <td class="p-3 text-xs text-slate-500">${data.dateFinished}</td>
             <td class="p-3">
               <a href="reader-detail.html?reader=${encodeURIComponent(data.readerName)}" class="text-indigo-600 hover:text-indigo-800 font-semibold text-xs underline">Rozetler & Profil</a>
+            </td>
+            <td class="p-3">
+              <a href="add-book.html?edit=${encodeURIComponent(doc.id)}" class="text-emerald-600 hover:text-emerald-800 font-semibold text-xs underline">
+                Düzenle
+              </a>
             </td>
           </tr>
         `;
@@ -149,8 +134,6 @@
 
       document.getElementById('statTotalBooks').innerText = totalBooks;
       document.getElementById('statTotalPages').innerText = totalPages;
-      document.getElementById('statAvgSpeed').innerText = totalBooks ? Math.round(totalSpeed / totalBooks) : 0;
-      document.getElementById('statAvgComprehension').innerText = '%' + (totalBooks ? Math.round(totalComp / totalBooks) : 0);
     }
   </script>
 </body>
