@@ -60,8 +60,12 @@
 
       let bookCount = 0;
       let pageTotal = 0;
-      let maxSpeed = 0;
-      let highComprehensionCount = 0;
+      const categories = new Set();
+      let fiveStarCount = 0;
+      let noteCount = 0;
+      const completedDates = new Set();
+      const monthlyCounts = new Map();
+      const authors = new Set();
 
       const booksList = document.getElementById('personalBooksList');
       booksList.innerHTML = '';
@@ -70,8 +74,15 @@
         const data = doc.data();
         bookCount++;
         pageTotal += Number(data.pageCount || 0);
-        if (data.readingSpeed > maxSpeed) maxSpeed = data.readingSpeed;
-        if (data.comprehensionScore >= 85) highComprehensionCount++;
+        if (data.category) categories.add(data.category);
+        if (Number(data.rating) === 5) fiveStarCount++;
+        if (data.shortNote && data.shortNote.trim()) noteCount++;
+        if (data.author && data.author.trim()) authors.add(data.author.trim());
+        if (data.dateFinished) completedDates.add(data.dateFinished);
+        if (data.dateFinished && data.dateFinished.length >= 7) {
+          const month = data.dateFinished.slice(0, 7);
+          monthlyCounts.set(month, (monthlyCounts.get(month) || 0) + 1);
+        }
 
         booksList.innerHTML += `
           <div class="flex gap-4 p-4 border border-slate-100 rounded-xl bg-slate-50">
@@ -79,23 +90,46 @@
             <div class="space-y-1">
               <h3 class="font-bold text-slate-800">${data.bookTitle}</h3>
               <p class="text-xs text-slate-500">${data.author} | <span class="font-semibold text-indigo-600">${data.pageCount} Sayfa</span></p>
-              <div class="text-xs font-semibold text-amber-500">Hız: ${data.readingSpeed} K/Dk | Anlama: %${data.comprehensionScore}</div>
               <p class="text-xs text-slate-600 italic mt-1">"${data.shortNote || 'Not eklenmedi.'}"</p>
             </div>
           </div>
         `;
       });
 
-      renderBadges(bookCount, pageTotal, maxSpeed, highComprehensionCount);
+      const maxMonthlyCount = Math.max(0, ...monthlyCounts.values());
+      renderBadges(bookCount, pageTotal, categories.size, fiveStarCount, noteCount, completedDates.size, maxMonthlyCount, authors.size);
     }
 
-    function renderBadges(books, pages, maxSpeed, highComp) {
+    function renderBadges(books, pages, categoryCount, fiveStarCount, noteCount, dateCount, monthlyCount, authorCount) {
       const badges = [
         { name: "İlk Adım", desc: "1 Kitap Okundu", active: books >= 1, icon: "fa-star", color: "text-amber-500" },
         { name: "Kitap Kurdu", desc: "5+ Kitap Okundu", active: books >= 5, icon: "fa-book-bookmark", color: "text-indigo-500" },
+        { name: "Kütüphane Dostu", desc: "10+ Kitap Okundu", active: books >= 10, icon: "fa-book-open-reader", color: "text-sky-500" },
+        { name: "Efsane Okur", desc: "25+ Kitap Okundu", active: books >= 25, icon: "fa-crown", color: "text-amber-600" },
+        { name: "Kitap Koleksiyoncusu", desc: "50+ Kitap Okundu", active: books >= 50, icon: "fa-layer-group", color: "text-indigo-700" },
+        { name: "Kütüphane Efsanesi", desc: "100+ Kitap Okundu", active: books >= 100, icon: "fa-landmark", color: "text-slate-800" },
         { name: "Sayfa Canavarı", desc: "500+ Sayfa Okundu", active: pages >= 500, icon: "fa-fire", color: "text-red-500" },
-        { name: "Şimşek Okuyucu", desc: "100+ Kelime/Dk Hız", active: maxSpeed >= 100, icon: "fa-bolt", color: "text-yellow-500" },
-        { name: "Süper Zeka", desc: "High Anlama Oranı (%85+)", active: highComp >= 1, icon: "fa-brain", color: "text-purple-500" }
+        { name: "Bin Sayfalık Macera", desc: "1000+ Sayfa Okundu", active: pages >= 1000, icon: "fa-mountain", color: "text-emerald-600" },
+        { name: "Büyük Kitaplık", desc: "5000+ Sayfa Okundu", active: pages >= 5000, icon: "fa-building-columns", color: "text-slate-700" },
+        { name: "On Bin Sayfalık Yol", desc: "10.000+ Sayfa Okundu", active: pages >= 10000, icon: "fa-road", color: "text-amber-700" },
+        { name: "Kitap İmparatorluğu", desc: "20.000+ Sayfa Okundu", active: pages >= 20000, icon: "fa-chess-king", color: "text-purple-800" },
+        { name: "Tür Gezgini", desc: "3 Farklı Tür Okundu", active: categoryCount >= 3, icon: "fa-compass", color: "text-teal-500" },
+        { name: "Edebiyat Kaşifi", desc: "5 Farklı Tür Okundu", active: categoryCount >= 5, icon: "fa-earth-europe", color: "text-cyan-600" },
+        { name: "Çok Yönlü Okur", desc: "8 Farklı Tür Okundu", active: categoryCount >= 8, icon: "fa-dna", color: "text-fuchsia-600" },
+        { name: "Kategori Ustası", desc: "10 Farklı Tür Okundu", active: categoryCount >= 10, icon: "fa-ranking-star", color: "text-rose-700" },
+        { name: "Beş Yıldızlı", desc: "İlk 5 Puanlı Kitap", active: fiveStarCount >= 1, icon: "fa-star", color: "text-yellow-500" },
+        { name: "Beş Yıldız Koleksiyoncusu", desc: "10 Kitap 5 Puan Aldı", active: fiveStarCount >= 10, icon: "fa-gem", color: "text-yellow-600" },
+        { name: "Mükemmellik Avcısı", desc: "25 Kitap 5 Puan Aldı", active: fiveStarCount >= 25, icon: "fa-trophy", color: "text-amber-700" },
+        { name: "Eleştirmen", desc: "5 Kitap İçin Not Yazıldı", active: noteCount >= 5, icon: "fa-pen-nib", color: "text-violet-500" },
+        { name: "Kitap Günlüğü", desc: "10 Kitap İçin Not Yazıldı", active: noteCount >= 10, icon: "fa-book-open", color: "text-pink-500" },
+        { name: "Eleştiri Uzmanı", desc: "25 Kitap İçin Not Yazıldı", active: noteCount >= 25, icon: "fa-feather-pointed", color: "text-violet-700" },
+        { name: "Farklı Günler", desc: "Farklı 7 Gün Kitap Bitirildi", active: dateCount >= 7, icon: "fa-calendar-check", color: "text-blue-500" },
+        { name: "Okuma Maratonu", desc: "Farklı 30 Gün Kitap Bitirildi", active: dateCount >= 30, icon: "fa-person-running", color: "text-red-600" },
+        { name: "Ayın Okuru", desc: "Bir Ayda 10 Kitap Bitirildi", active: monthlyCount >= 10, icon: "fa-calendar-days", color: "text-orange-500" },
+        { name: "Aylık Hız Patronu", desc: "Bir Ayda 25 Kitap Bitirildi", active: monthlyCount >= 25, icon: "fa-bolt-lightning", color: "text-orange-700" },
+        { name: "Yazar Kaşifi", desc: "10 Farklı Yazarın Kitabını Okudu", active: authorCount >= 10, icon: "fa-signature", color: "text-cyan-700" },
+        { name: "Edebiyat Sömürgesi", desc: "25 Farklı Yazarın Kitabını Okudu", active: authorCount >= 25, icon: "fa-atlas", color: "text-emerald-700" },
+        { name: "Düzenli Okur", desc: "En Az 10 Kayıt Tamamlandı", active: books >= 10, icon: "fa-seedling", color: "text-green-600" }
       ];
 
       const container = document.getElementById('badgesContainer');
